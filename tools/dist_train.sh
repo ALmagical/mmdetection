@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#change file to Unix style
+#sed $'s/\r$//' ./install.sh > ./install.Unix.sh
+
 CONFIG=$1
 GPUS=$2
 NNODES=${NNODES:-1}
