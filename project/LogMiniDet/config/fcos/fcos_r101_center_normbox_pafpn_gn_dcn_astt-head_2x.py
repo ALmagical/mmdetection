@@ -1,10 +1,11 @@
 _base_ = './fcos_r50_fpn_gn-head_1x.py'
+INF = 1e8
 # model settings
 model = dict(
-     backbone=dict(
+    backbone=dict(
         depth=101,
         init_cfg=dict(type='Pretrained',
-                      checkpoint='torchvision://resnet101')
+                      checkpoint='torchvision://resnet101'),
         dcn=dict(type='DCNv2', deform_groups=1, fallback_on_stride=False),
         stage_with_dcn=(False, True, True, True)),
     neck=dict(
@@ -12,7 +13,7 @@ model = dict(
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
         start_level=0,
-        add_extra_convs='on_output',  # use P5
+        #add_extra_convs='on_output',  # use P5
         num_outs=4,
         relu_before_extra_convs=True),
     bbox_head=dict(
@@ -21,12 +22,13 @@ model = dict(
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
-        strides=[8, 16, 32, 64, 128],
+        strides=[4, 8, 16, 32],
         norm_on_bbox=True,
         centerness_on_reg=True,
         dcn_on_last_conv=True,
         center_sampling=True,
         conv_bias=True,
+        regress_ranges=((-1, 48), (48, 96), (96, 192), (192, INF)),
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -76,14 +78,14 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=3,
-    workers_per_gpu=2,
+    samples_per_gpu=2,
+    workers_per_gpu=1,
     train=dict(pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
     test=dict(pipeline=test_pipeline))
 # optimizer
 optimizer = dict(
-    lr=0.005, paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.))
+    lr=0.0025, paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.))
 optimizer_config = dict(
     _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy

@@ -36,8 +36,8 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=4,
-    workers_per_gpu=2,
+    samples_per_gpu=2,
+    workers_per_gpu=1,
     train=dict(
         type='LogMiniDet',
         ann_file=
@@ -108,7 +108,7 @@ data = dict(
 evaluation = dict(interval=1, metric='bbox')
 optimizer = dict(
     type='SGD',
-    lr=0.005,
+    lr=0.0025,
     momentum=0.9,
     weight_decay=0.0001,
     paramwise_cfg=dict(bias_lr_mult=2.0, bias_decay_mult=0.0))
@@ -159,7 +159,7 @@ model = dict(
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
-        strides=[8, 16, 32, 64, 128],
+        strides=[4, 8, 16, 32],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -173,7 +173,8 @@ model = dict(
         centerness_on_reg=True,
         dcn_on_last_conv=True,
         center_sampling=True,
-        conv_bias=True),
+        conv_bias=True,
+        regress_ranges=((-1, 48), (48, 96), (96, 192), (192, 100000000.0))),
     train_cfg=dict(
         assigner=dict(
             type='ATSSAssigner',
@@ -192,5 +193,6 @@ model = dict(
         nms=dict(type='nms', iou_threshold=0.5),
         max_per_img=100))
 work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/r50/pafpn_dcn_astt'
+INF = 100000000.0
 auto_resume = False
 gpu_ids = [0]
