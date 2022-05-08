@@ -43,7 +43,7 @@ train_pipeline = [
         test_mode=False,
         test_pad_mode=None,
         **img_norm_cfg),
-    dict(type='Resize', img_scale=[(1300, 1200), (1300, 1300)], keep_ratio=True),
+    dict(type='Resize', img_scale=[(1300, 1200), (1300, 1400)], keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
     dict(type='Normalize', **img_norm_cfg),
@@ -71,7 +71,7 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         ann_file='/root/autodl-tmp/Dataset/LogMiniDet/data/train/annotations/train.json',
-        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/train/images'
+        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/train/images',
         pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
     test=dict(pipeline=test_pipeline))
