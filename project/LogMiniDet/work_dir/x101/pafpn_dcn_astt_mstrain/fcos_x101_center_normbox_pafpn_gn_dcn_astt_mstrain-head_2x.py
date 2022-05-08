@@ -5,8 +5,26 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1300, 1200), keep_ratio=True),
+    dict(
+        type='PhotoMetricDistortion',
+        brightness_delta=32,
+        contrast_range=(0.5, 1.5),
+        saturation_range=(0.5, 1.5),
+        hue_delta=18),
+    dict(
+        type='RandomCenterCropPad',
+        crop_size=(800, 800),
+        ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
+        test_mode=False,
+        test_pad_mode=None,
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(
+        type='Resize', img_scale=[(1300, 1200), (1300, 1300)],
+        keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
     dict(
         type='Normalize',
         mean=[123.675, 116.28, 103.53],
@@ -20,8 +38,8 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1300, 1200),
-        flip=False,
+        img_scale=[(1300, 1200), (1300, 1300)],
+        flip=True,
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -46,8 +64,27 @@ data = dict(
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
-            dict(type='Resize', img_scale=(1300, 1200), keep_ratio=True),
+            dict(
+                type='PhotoMetricDistortion',
+                brightness_delta=32,
+                contrast_range=(0.5, 1.5),
+                saturation_range=(0.5, 1.5),
+                hue_delta=18),
+            dict(
+                type='RandomCenterCropPad',
+                crop_size=(800, 800),
+                ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
+                test_mode=False,
+                test_pad_mode=None,
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(
+                type='Resize',
+                img_scale=[(1300, 1200), (1300, 1300)],
+                keep_ratio=True),
             dict(type='RandomFlip', flip_ratio=0.5),
+            dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
@@ -66,8 +103,8 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(1300, 1200),
-                flip=False,
+                img_scale=[(1300, 1200), (1300, 1300)],
+                flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
                     dict(type='RandomFlip'),
@@ -84,14 +121,14 @@ data = dict(
     test=dict(
         type='LogMiniDet',
         ann_file=
-        '/root/autodl-tmp/Dataset/LogMiniDet/data/0428/annotations/val.json',
-        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/0428/val/',
+        '/root/autodl-tmp/Dataset/LogMiniDet/val/annotations/instances_val2017.json',
+        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/val/images/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(1300, 1200),
-                flip=False,
+                img_scale=[(1300, 1200), (1300, 1300)],
+                flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
                     dict(type='RandomFlip'),
@@ -125,7 +162,7 @@ log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = None
+load_from = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt/epoch_18.pth'
 resume_from = None
 workflow = [('train', 1)]
 opencv_num_threads = 0
@@ -195,7 +232,7 @@ model = dict(
         score_thr=0.05,
         nms=dict(type='nms', iou_threshold=0.5),
         max_per_img=100))
-work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt'
+work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain'
 INF = 100000000.0
-auto_resume = True
+auto_resume = False
 gpu_ids = range(0, 4)
