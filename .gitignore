@@ -122,7 +122,6 @@ work_dirs/
 *.pth
 *.py~
 *.sh~
-
-# base config
-project/LogMiniDet/config/_base_/
-project/LogMiniDet/config/_base_/datasets/logminidet.py
+project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain/test_result/test.json
+.gitignore
+project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain/test_result/evalresult.json

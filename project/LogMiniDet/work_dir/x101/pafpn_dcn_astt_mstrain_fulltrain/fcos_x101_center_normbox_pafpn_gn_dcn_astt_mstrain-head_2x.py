@@ -5,8 +5,26 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(1300, 1200), keep_ratio=True),
+    dict(
+        type='PhotoMetricDistortion',
+        brightness_delta=32,
+        contrast_range=(0.5, 1.5),
+        saturation_range=(0.5, 1.5),
+        hue_delta=18),
+    dict(
+        type='RandomCenterCropPad',
+        crop_size=(512, 512),
+        ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
+        test_mode=False,
+        test_pad_mode=None,
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(
+        type='Resize', img_scale=[(1300, 1200), (1300, 1400)],
+        keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
+    dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
     dict(
         type='Normalize',
         mean=[123.675, 116.28, 103.53],
@@ -20,8 +38,8 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1300, 1200),
-        flip=False,
+        img_scale=[(1300, 1200), (1300, 1500)],
+        flip=True,
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -36,18 +54,37 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=3,
+    samples_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
         type='LogMiniDet',
         ann_file=
-        '/root/autodl-tmp/Dataset/LogMiniDet/data/0428/annotations/train.json',
-        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/0428/train/',
+        '/root/autodl-tmp/Dataset/LogMiniDet/data/train/annotations/train.json',
+        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/train/images',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
-            dict(type='Resize', img_scale=(1300, 1200), keep_ratio=True),
+            dict(
+                type='PhotoMetricDistortion',
+                brightness_delta=32,
+                contrast_range=(0.5, 1.5),
+                saturation_range=(0.5, 1.5),
+                hue_delta=18),
+            dict(
+                type='RandomCenterCropPad',
+                crop_size=(512, 512),
+                ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
+                test_mode=False,
+                test_pad_mode=None,
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(
+                type='Resize',
+                img_scale=[(1300, 1200), (1300, 1400)],
+                keep_ratio=True),
             dict(type='RandomFlip', flip_ratio=0.5),
+            dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
@@ -66,8 +103,8 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(1300, 1200),
-                flip=False,
+                img_scale=[(1300, 1200), (1300, 1500)],
+                flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
                     dict(type='RandomFlip'),
@@ -90,8 +127,8 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=(1300, 1200),
-                flip=False,
+                img_scale=[(1300, 1200), (1300, 1500)],
+                flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
                     dict(type='RandomFlip'),
@@ -108,7 +145,7 @@ data = dict(
 evaluation = dict(interval=1, metric='bbox')
 optimizer = dict(
     type='SGD',
-    lr=0.015,
+    lr=0.0075,
     momentum=0.9,
     weight_decay=0.0001,
     paramwise_cfg=dict(bias_lr_mult=2.0, bias_decay_mult=0.0))
@@ -116,16 +153,16 @@ optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
 lr_config = dict(
     policy='step',
     warmup='constant',
-    warmup_iters=1000,
+    warmup_iters=500,
     warmup_ratio=0.3333333333333333,
-    step=[16, 22])
-runner = dict(type='EpochBasedRunner', max_epochs=24)
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=12)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = None
+load_from = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain/epoch_24.pth'
 resume_from = None
 workflow = [('train', 1)]
 opencv_num_threads = 0
@@ -195,7 +232,7 @@ model = dict(
         score_thr=0.05,
         nms=dict(type='nms', iou_threshold=0.5),
         max_per_img=100))
-work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt'
+work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain_fulltrain'
 INF = 100000000.0
 auto_resume = False
-gpu_ids = range(0, 4)
+gpu_ids = range(0, 3)
