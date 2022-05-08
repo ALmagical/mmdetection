@@ -13,7 +13,7 @@ train_pipeline = [
         hue_delta=18),
     dict(
         type='RandomCenterCropPad',
-        crop_size=(800, 800),
+        crop_size=(512, 512),
         ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
         test_mode=False,
         test_pad_mode=None,
@@ -21,7 +21,7 @@ train_pipeline = [
         std=[58.395, 57.12, 57.375],
         to_rgb=True),
     dict(
-        type='Resize', img_scale=[(1300, 1200), (1300, 1300)],
+        type='Resize', img_scale=[(1300, 1200), (1300, 1400)],
         keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
@@ -38,7 +38,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=[(1300, 1200), (1300, 1300)],
+        img_scale=[(1300, 1200), (1300, 1500)],
         flip=True,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -59,8 +59,8 @@ data = dict(
     train=dict(
         type='LogMiniDet',
         ann_file=
-        '/root/autodl-tmp/Dataset/LogMiniDet/data/0428/annotations/train.json',
-        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/0428/train/',
+        '/root/autodl-tmp/Dataset/LogMiniDet/data/train/annotations/train.json',
+        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/train/images',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(type='LoadAnnotations', with_bbox=True),
@@ -72,7 +72,7 @@ data = dict(
                 hue_delta=18),
             dict(
                 type='RandomCenterCropPad',
-                crop_size=(800, 800),
+                crop_size=(512, 512),
                 ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
                 test_mode=False,
                 test_pad_mode=None,
@@ -81,7 +81,7 @@ data = dict(
                 to_rgb=True),
             dict(
                 type='Resize',
-                img_scale=[(1300, 1200), (1300, 1300)],
+                img_scale=[(1300, 1200), (1300, 1400)],
                 keep_ratio=True),
             dict(type='RandomFlip', flip_ratio=0.5),
             dict(type='Rotate', level=1, max_rotate_angle=30, prob=0.5),
@@ -103,7 +103,7 @@ data = dict(
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=[(1300, 1200), (1300, 1300)],
+                img_scale=[(1300, 1200), (1300, 1500)],
                 flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
@@ -120,17 +120,14 @@ data = dict(
         ]),
     test=dict(
         type='LogMiniDet',
-        #ann_file=
-        #'/root/autodl-tmp/Dataset/LogMiniDet/data/0428/annotations/val.json',
-        #img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/0428/val/',
         ann_file=
-        '/root/autodl-tmp/Dataset/LogMiniDet/val/annotations/instances_val2017.json',
-        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/val/images/',
+        '/root/autodl-tmp/Dataset/LogMiniDet/data/0428/annotations/val.json',
+        img_prefix='/root/autodl-tmp/Dataset/LogMiniDet/data/0428/val/',
         pipeline=[
             dict(type='LoadImageFromFile'),
             dict(
                 type='MultiScaleFlipAug',
-                img_scale=[(1300, 1200), (1300, 1600)],
+                img_scale=[(1300, 1200), (1300, 1500)],
                 flip=True,
                 transforms=[
                     dict(type='Resize', keep_ratio=True),
@@ -148,7 +145,7 @@ data = dict(
 evaluation = dict(interval=1, metric='bbox')
 optimizer = dict(
     type='SGD',
-    lr=0.01,
+    lr=0.0075,
     momentum=0.9,
     weight_decay=0.0001,
     paramwise_cfg=dict(bias_lr_mult=2.0, bias_decay_mult=0.0))
@@ -158,14 +155,14 @@ lr_config = dict(
     warmup='constant',
     warmup_iters=500,
     warmup_ratio=0.3333333333333333,
-    step=[16, 22])
-runner = dict(type='EpochBasedRunner', max_epochs=24)
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=12)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=50, hooks=[dict(type='TextLoggerHook')])
 custom_hooks = [dict(type='NumClassCheckHook')]
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt/epoch_18.pth'
+load_from = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain/epoch_24.pth'
 resume_from = None
 workflow = [('train', 1)]
 opencv_num_threads = 0
@@ -235,7 +232,7 @@ model = dict(
         score_thr=0.05,
         nms=dict(type='nms', iou_threshold=0.5),
         max_per_img=100))
-work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain'
+work_dir = '/root/autodl-tmp/code/mmdetection/project/LogMiniDet/work_dir/x101/pafpn_dcn_astt_mstrain_fulltrain'
 INF = 100000000.0
 auto_resume = False
-gpu_ids = range(0, 4)
+gpu_ids = range(0, 3)
